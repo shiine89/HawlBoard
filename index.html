@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="so">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f6fb">
+  <title>HawlBoard — Board-ka hawlaha</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="HawlBoard bogga hore">
+        <span class="brand-mark">H</span>
+        <span class="brand-name">HawlBoard</span>
+      </a>
+      <span class="team-pill"><span class="online-dot"></span> Kooxda demo</span>
+    </header>
+
+    <main class="page-content">
+      <section class="page-heading">
+        <div>
+          <p class="eyebrow">MEESHA SHAQADA</p>
+          <h1>Board-ka hawlaha</h1>
+          <p class="page-description">Shaqada kooxda hal meel ku qorshee, ku kala soco, kuna dhammaystir.</p>
+        </div>
+        <button class="button button-primary" id="new-task-button" type="button">
+          <span aria-hidden="true">＋</span> Hawl cusub
+        </button>
+      </section>
+
+      <section class="stats-grid" aria-label="Tirada hawlaha">
+        <article class="stat-card stat-card-total">
+          <div class="stat-icon icon-purple" aria-hidden="true">▤</div>
+          <div><p>Wadarta hawlaha</p><strong id="stat-total">0</strong></div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-icon icon-blue" aria-hidden="true">◷</div>
+          <div><p>La sugayo</p><strong id="stat-todo">0</strong></div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-icon icon-orange" aria-hidden="true">↗</div>
+          <div><p>Socda</p><strong id="stat-progress">0</strong></div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-icon icon-green" aria-hidden="true">✓</div>
+          <div><p>Dhammaystiran</p><strong id="stat-done">0</strong></div>
+        </article>
+      </section>
+
+      <section class="board-toolbar" aria-label="Raadi oo kala shaandhee hawlaha">
+        <label class="search-box" for="search-input">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <span class="sr-only">Raadi hawl</span>
+          <input id="search-input" type="search" placeholder="Raadi hawl ama qof..." autocomplete="off">
+        </label>
+        <label class="filter-box" for="priority-filter">
+          <span class="sr-only">Kala shaandhee mudnaanta</span>
+          <select id="priority-filter">
+            <option value="all">Dhammaan mudnaanta</option>
+            <option value="high">Degdeg</option>
+            <option value="medium">Caadi</option>
+            <option value="low">Hoose</option>
+          </select>
+        </label>
+        <p class="results-label" id="results-label" aria-live="polite"></p>
+      </section>
+
+      <section class="board" id="board" aria-label="Board-ka hawlaha">
+        <section class="board-column column-todo" data-column="todo">
+          <header class="column-heading">
+            <div class="column-title"><span class="column-dot dot-todo"></span><h2>La sugayo</h2></div>
+            <span class="column-count" data-column-count="todo">0</span>
+          </header>
+          <div class="task-list" data-dropzone="todo"></div>
+        </section>
+        <section class="board-column column-progress" data-column="in-progress">
+          <header class="column-heading">
+            <div class="column-title"><span class="column-dot dot-progress"></span><h2>Socda</h2></div>
+            <span class="column-count" data-column-count="in-progress">0</span>
+          </header>
+          <div class="task-list" data-dropzone="in-progress"></div>
+        </section>
+        <section class="board-column column-done" data-column="done">
+          <header class="column-heading">
+            <div class="column-title"><span class="column-dot dot-done"></span><h2>Dhammaystiran</h2></div>
+            <span class="column-count" data-column-count="done">0</span>
+          </header>
+          <div class="task-list" data-dropzone="done"></div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="page-footer">
+      <span>HawlBoard Starter</span>
+      <span>Project tijaabo ah oo loogu talagalay 3 qof</span>
+    </footer>
+  </div>
+
+  <dialog class="task-dialog" id="task-dialog">
+    <form class="task-form" id="task-form">
+      <header class="dialog-heading">
+        <div>
+          <p class="eyebrow">KOXDA KU DAR</p>
+          <h2>Samee hawl cusub</h2>
+        </div>
+        <button class="icon-button" id="close-dialog" type="button" aria-label="Xir">×</button>
+      </header>
+      <label class="form-field">
+        <span>Magaca hawsha <b aria-hidden="true">*</b></span>
+        <input name="title" id="task-title" maxlength="70" required placeholder="Tusaale: Samee bogga login-ka">
+      </label>
+      <label class="form-field">
+        <span>Qofka qabanaya <b aria-hidden="true">*</b></span>
+        <input name="assignee" id="task-assignee" maxlength="40" required placeholder="Magaca qofka">
+      </label>
+      <label class="form-field">
+        <span>Faahfaahin</span>
+        <textarea name="description" id="task-description" maxlength="220" rows="3" placeholder="Maxaa la qabanayaa?"></textarea>
+      </label>
+      <div class="form-row">
+        <label class="form-field">
+          <span>Mudnaan</span>
+          <select name="priority" id="task-priority">
+            <option value="medium">Caadi</option>
+            <option value="high">Degdeg</option>
+            <option value="low">Hoose</option>
+          </select>
+        </label>
+        <label class="form-field">
+          <span>Taariikhda dhammaadka</span>
+          <input name="dueDate" id="task-due-date" type="date">
+        </label>
+      </div>
+      <p class="form-error" id="form-error" role="alert" hidden></p>
+      <footer class="dialog-actions">
+        <button class="button button-secondary" id="cancel-dialog" type="button">Ka noqo</button>
+        <button class="button button-primary" type="submit">Kaydi hawsha</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
