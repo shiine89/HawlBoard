@@ -1,15 +1,86 @@
 export function mountTaskForm({ openButton, closeButton, cancelButton, dialog, form, store, onChange }) {
+  const titleInput = form.elements.namedItem("title");
+  const assigneeInput = form.elements.namedItem("assignee");
+  const errorMessage = form.querySelector(".form-error");
+  const requiredFields = [
+    { input: titleInput, label: "Cinwaanka" },
+    { input: assigneeInput, label: "Qofka qabanaya" }
+  ];
+
+  form.noValidate = true;
+
+  function clearValidation() {
+    for (const { input } of requiredFields) {
+      input.removeAttribute("aria-invalid");
+      input.removeAttribute("aria-describedby");
+    }
+    if (errorMessage) {
+      errorMessage.textContent = "";
+      errorMessage.hidden = true;
+    }
+  }
+
+  function validateRequiredFields() {
+    let firstInvalidField = null;
+
+    for (const field of requiredFields) {
+      const isInvalid = !field.input.value.trim();
+      if (isInvalid) {
+        firstInvalidField ??= field;
+        field.input.setAttribute("aria-invalid", "true");
+        if (errorMessage?.id) field.input.setAttribute("aria-describedby", errorMessage.id);
+      } else {
+        field.input.removeAttribute("aria-invalid");
+        field.input.removeAttribute("aria-describedby");
+      }
+    }
+
+    if (!firstInvalidField) {
+      if (errorMessage) {
+        errorMessage.textContent = "";
+        errorMessage.hidden = true;
+      }
+      return true;
+    }
+
+    if (errorMessage) {
+      errorMessage.textContent = firstInvalidField.label === "Cinwaanka"
+        ? "Cinwaanka hawsha waa khasab. Fadlan geli cinwaanka."
+        : "Qofka qabanaya waa khasab. Fadlan geli magaca qofka.";
+      errorMessage.hidden = false;
+    }
+    return false;
+  }
+
   openButton.addEventListener("click", () => {
     form.reset();
+    clearValidation();
     dialog.showModal();
-    document.getElementById("task-title").focus();
+    titleInput.focus();
   });
 
-  closeButton.addEventListener("click", () => dialog.close());
-  cancelButton.addEventListener("click", () => dialog.close());
+  closeButton.addEventListener("click", () => {
+    clearValidation();
+    dialog.close();
+  });
+  cancelButton.addEventListener("click", () => {
+    clearValidation();
+    dialog.close();
+  });
+
+  for (const { input } of requiredFields) {
+    input.addEventListener("input", () => {
+      if (errorMessage && !errorMessage.hidden) validateRequiredFields();
+    });
+  }
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
+    if (!validateRequiredFields()) {
+      requiredFields.find(({ input }) => !input.value.trim())?.input.focus();
+      return;
+    }
+
     const values = Object.fromEntries(new FormData(form).entries());
     const taskId = form.dataset.editingTaskId;
 
@@ -36,13 +107,13 @@ export function mountTaskForm({ openButton, closeButton, cancelButton, dialog, f
 
     dialog.close();
     form.reset();
+    clearValidation();
     delete form.dataset.editingTaskId;
     onChange();
   });
 
   return {
     openForEdit(task) {
-      // 1. Populate the form with existing task data
       const inputs = form.elements;
       if (inputs.title) inputs.title.value = task.title;
       if (inputs.assignee) inputs.assignee.value = task.assignee;
@@ -50,9 +121,7 @@ export function mountTaskForm({ openButton, closeButton, cancelButton, dialog, f
       if (inputs.priority) inputs.priority.value = task.priority;
       if (inputs.dueDate) inputs.dueDate.value = task.dueDate || "";
 
-      // 2. Store the task ID on the form to differentiate between "Add" and "Update"
       form.dataset.editingTaskId = task.id;
-
       dialog.showModal();
       if (inputs.title) inputs.title.focus();
     }
