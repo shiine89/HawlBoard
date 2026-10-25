@@ -7,7 +7,6 @@ export function mountTaskForm({ openButton, closeButton, cancelButton, dialog, f
     { input: assigneeInput, label: "Qofka qabanaya" }
   ];
 
-  // We validate trimmed values below so whitespace alone cannot pass as input.
   form.noValidate = true;
 
   function clearValidation() {
@@ -83,23 +82,48 @@ export function mountTaskForm({ openButton, closeButton, cancelButton, dialog, f
     }
 
     const values = Object.fromEntries(new FormData(form).entries());
-    store.addTask({
-      title: titleInput.value.trim(),
-      assignee: assigneeInput.value.trim(),
-      description: (values.description || "").trim(),
-      priority: values.priority,
-      dueDate: values.dueDate,
-      status: "todo"
-    });
+    const taskId = form.dataset.editingTaskId;
+
+    if (taskId) {
+      // Update existing task
+      store.updateTask(taskId, {
+        title: values.title.trim(),
+        assignee: values.assignee.trim(),
+        description: values.description.trim(),
+        priority: values.priority,
+        dueDate: values.dueDate,
+      });
+    } else {
+      // Add new task
+      store.addTask({
+        title: values.title.trim(),
+        assignee: values.assignee.trim(),
+        description: values.description.trim(),
+        priority: values.priority,
+        dueDate: values.dueDate,
+        status: "todo"
+      });
+    }
+
+    dialog.close();
     form.reset();
     clearValidation();
-    dialog.close();
+    delete form.dataset.editingTaskId;
     onChange();
   });
 
   return {
-    openForEdit() {
-      // TODO: Qofka 2 ha ku daro habka wax-ka-beddelka.
+    openForEdit(task) {
+      const inputs = form.elements;
+      if (inputs.title) inputs.title.value = task.title;
+      if (inputs.assignee) inputs.assignee.value = task.assignee;
+      if (inputs.description) inputs.description.value = task.description || "";
+      if (inputs.priority) inputs.priority.value = task.priority;
+      if (inputs.dueDate) inputs.dueDate.value = task.dueDate || "";
+
+      form.dataset.editingTaskId = task.id;
+      dialog.showModal();
+      if (inputs.title) inputs.title.focus();
     }
   };
 }
